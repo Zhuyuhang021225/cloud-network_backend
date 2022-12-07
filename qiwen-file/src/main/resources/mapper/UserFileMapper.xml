@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.qiwenshare.file.mapper.UserFileMapper">
+
+    <select id="selectPageVo" parameterType="com.qiwenshare.file.domain.UserFile" resultType="com.qiwenshare.file.vo.file.FileListVo">
+        select * from userfile a
+        left join image on a.fileId = image.fileId
+        left join file on file.fileId = a.fileId
+        <where>
+            <if test="fileTypeId != null">
+                <choose>
+                    <when test="fileTypeId != 5">
+                        extendName in (select fileExtendName from fileclassification where fileTypeId = #{fileTypeId})
+                    </when>
+                    <otherwise>
+                        extendName not in (select fileExtendName from fileclassification where fileTypeId in (1, 2, 3, 4))
+                    </otherwise>
+                </choose>
+                and a.isDir = 0
+            </if>
+            <if test="userFile.userId != null">
+                and a.userId = #{userFile.userId}
+            </if>
+            <if test="userFile.filePath != null">
+                and a.filePath = #{userFile.filePath}
+            </if>
+            <if test="userFile.extendName != null">
+                and a.extendName = #{userFile.extendName}
+            </if>
+            <if test="userFile.userFileId != null">
+                and a.userFileId = #{userFile.userFileId}
+            </if>
+            <if test="userFile.fileName != null">
+                and a.fileName = #{userFile.fileName}
+            </if>
+            and a.deleteFlag = 0
+        </where>
+        ORDER BY isDir desc
+    </select>
+
+    <select id="selectUserFileByLikeRightFilePath" resultType="com.qiwenshare.file.domain.UserFile">
+        select * from userfile
+        where (filePath = #{filePath} or filePath like concat(#{filePath},'/%')) and userId = #{userId} and deleteFlag = 0
+    </select>
+
+    <select id="selectStorageSizeByUserId" resultType="java.lang.Long" parameterType="java.lang.Long">
+        SELECT SUM(fileSize) FROM userfile
+        LEFT JOIN file ON file.fileId = userfile.fileId
+        WHERE userfile.userId = #{userId}
+    </select>
+
+</mapper>

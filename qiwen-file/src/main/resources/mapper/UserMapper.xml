@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.qiwenshare.file.mapper.UserMapper">
+
+    <insert id="insertUser" parameterType="com.qiwenshare.file.domain.user.UserBean" useGeneratedKeys="true" keyProperty="userId">
+        INSERT INTO user (username, salt, PASSWORD,  telephone, sex, imageUrl, registerTime, available)
+        VALUES (#{username},#{salt}, #{password}, #{telephone}, #{sex}, #{imageUrl}, #{registerTime}, 1);
+    </insert>
+
+    <insert id="insertUserRole" parameterType="Long">
+        INSERT INTO user_role (userId, roleId)
+        VALUES (#{param1}, #{param2});
+    </insert>
+
+    <select id="selectRoleListByUserId" resultType="com.qiwenshare.file.domain.user.Role">
+        select b.*
+        from user_role a
+        left join role b on b.roleId = a.roleId
+        where userId = #{userId}
+    </select>
+
+    <select id="selectSaltByTelephone" parameterType="java.lang.String" resultType="java.lang.String">
+        SELECT salt
+        FROM user
+        where telephone = #{telephone}
+    </select>
+
+    <select id="selectUserByTelephoneAndPassword" parameterType="java.lang.String"
+            resultType="com.qiwenshare.file.domain.user.UserBean">
+        select userId
+        from user
+        where telephone = #{telephone}
+        AND password = #{password}
+    </select>
+
+</mapper>
